@@ -1,0 +1,72 @@
+AMAZON S3: Simple Storage Service 
+
+    -Criado para armazenar arquivos
+    -O espaço de armazenamento é ilimitado, mas o limite máximo por arquivo é 5 tb
+    -Geralmente você paga por GB de uso, mas depende do seu plano. Também vai depender da zona e quão rápido você quer acessar o arquivo
+    
+    -A lógica do serviço é a seguinte:
+        -Você cria um bucket e dentro do bucket vc armazena seus arquivos
+        -O nome da bucket tem que ser exclusivo.
+            -O nome gera um registro no DNS. Então vc vai ganhar a sua URL
+                -estrutura: https://s3-us-west-2.amazonaws.com/nome-bucket/nome-folder
+                                    us-west-2: nome da região, nome-bucket e nome-folder
+
+    -Disponibilidade(Avaliability):99.9%
+    -Durabilidade/Integridade(Durability):99.99999999999%
+
+    -Versionamento: Quando os arquivos são alterados, eles podem ser versionados
+    -Encryption: Encripta os arquivos. N entendi direito como
+    -Acl: Aplicado a um arquivo, define quem pode ter acesso ao arquivo.
+    -Bucket Police: Aplicado a um bucket, define quem pode ter acesso ao bucket.
+
+    Componentes:
+        -Object base: 
+            -Quando upload é feito, a aws primeiro lê o arquivo, depois escreve.
+            -Gera uma key com o nome do arquivo
+            -value é os dados do arquivo
+            -version é a versão
+            -metadata: armazena de dados como tags, locais
+            -ACL: define quem tem acesso ao arquivo
+
+    S3 Tiers: As tiers são os valores a serem pagos, são definidos por bucket
++caro   -S3 Standart: Arquivos acessados em milissegundos ou microssegundos. Ao subir arquivo ele é replicado para no minimo 3 Availability Zones. Usados em arquivos muito acessados
+        -S3 IA: Vc paga menos pelo armazenamento, mas vc paga toda vez que acessa. É replicado para no minimio 3 availability zone
+        -S3 One Zone: Vc paga menos ainda pelo armazenamento e toda vez que acessa. É replicado para no minimo 1 availability zone
++barato -Glacier: Vc paga menos ainda, paga pouco pelo acesso. Porém pode demorar horas para acessar um dado. Usado para arquivos de backup
+    https://aws.amazon.com/pt/s3/storage-classes/
+
+    Tipos de pagamento:
+        -Storage: pagamento por giga armazenado
+        -Request: pagamento por acesso(não existe apenas no tier standart)
+        -Storage Managment Price: pagamento por armazenamento de metadados
+        -DTP: Preço de transferencia de uma região para outra caso necessário. Se subir uma instancia no EC2 e ela tiver em uma região, porém salvar no bucket que estiver em outra região, a taxa DTP é cobrada.
+        -Transfer Aceleration(CDN/Cloudfront): É quando o arquivo do bucket é replicado em diversas Availability Zones
+
+---
+
+É um Serviço da AWS para armazenamento de arquivos
+Armazenamento ilimitado de arquivos
+Limite de 5 tb por arquivo
+
+O bucket armazena os arquivos.
+O nome da bucket tem que ser exclusivo (único em toda AWS), para gerar uma url única.
+https://s3-us-west-2.amazonaws.com/nome-bucket/nome-folder : us-west-2: nome da região, nome-bucket e nome-folder
+
+Características:
+-Disponibilidade(Avaliability):99.9%
+-Durabilidade/Integridade(Durability):99.99999999999%
+
+Features:
+-Versionamento: Quando os arquivos são alterados, eles podem ser versionados
+-Encryption: Encripta os arquivos. N entendi direito como
+-Acl: Aplicado a um arquivo, define quem pode ter acesso ao arquivo.
+-Bucket Police: Aplicado a um bucket, define quem pode ter acesso ao bucket.
+
+Componentes:
+    -Object base: 
+        -Quando upload é feito, a aws primeiro lê o arquivo, depois escreve.
+        -Gera uma key com o nome do arquivo
+        -value é os dados do arquivo
+        -version é a versão
+        -metadata: armazena de dados como tags, locais
+        -ACL: define quem tem acesso ao arquivo
