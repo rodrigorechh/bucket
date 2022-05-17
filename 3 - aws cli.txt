@@ -1,0 +1,8 @@
+AWS CLI:
+    software pra rodar a aws no terminal
+
+    
+        aws configure //comando pra conectar o terminal com sua conta aws
+        
+        aws ls //aparece os comandos disponiveis
+        aws s3 ls//lista todos os buckets  disponíveis

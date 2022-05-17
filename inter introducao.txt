@@ -1,0 +1,98 @@
+CLOUD COMPUTING: 
+	-Vc só paga o que consome, com os servidores tradicionais vc paga pela estrutura inteira.
+	-O cliente não precisa se preocupar com diversas coisas como questões de estrutura, segurança.
+	-AWS tem uma estrutura global difente dos servidores locais
+	-Qnd o cliente quer um servidor novo, é mt mais rápido de startar na aws do que comprar a instalar um servidor fisico.
+
+ESTRUTURAS:
+	-Região:
+		É o grupamento de Zonas de disponibilidade
+			ex: us-west-1
+		-Zonas de disponibilidade(Availability Zones):
+			-local com conjunto de datas centers, cada um é independente do outro
+				ex: us-west-1a
+				ex2: SP é uma região e tem 3 AZ's
+
+	-Edge Locations:
+		-abre um cache da sua AZ em outra localidade pra melhorar o desempenho nessa localidade, ex: se o seu servidor é no sul vc abre 
+		um cache no norte
+		-Vc armazena conteúdos comuns do seu AZ's em edges location mais próximos do clientes.
+
+SERVIÇOS:
+(TODO outposts e cloudfront n entendi)
+
+AMAZON ELASTIC COMPUTING (AMAZON EC2):
+	-As máquinas virtuais, os recursos passam a ser olhados de forma descartável, recursos podem ser add ou deletados de maneira dinâmica
+	
+	-Instâncias: cada tipo de instância resolve um problema
+		-General purpose: bom balanceamento de CPU, memoria e rede, suporta a maioria dos clientes
+		-Compute optimized: algo mais especifico, que usa por exemplo muita CPU
+		-Memory optimized: instância pra um serviço que use muita memória, ex: redis
+
+	-Preços:
+		-on demand: servidor sobre demanda, usou pagou
+		-spot: a amazon fornece servidores deles que estão ociosos pra serem usados pelos clientes com mt desconto. Isso é um extra, qnd tá ocioso a amazon te dá, qnd ela precisar ela pega de volta
+		-Reserved: vc faz um plano de anos e ganha desconto
+
+	-Auto Scaling:
+		-Colocar mais instâncias conforme o servidor é utilizado. Se vc sabe que seu serviço vai receber mts requisições no sabado, vc deixa pronto pra criar nova instância.
+		-Podemos definir a escala minima do servidor, a escala desejada e a escala máxima, sabendo disso a aws vai coordenando. É preciso ter escala máxima pq se derem um ataque ddos por exemplo, consumiriamos a aws pra sempre.
+
+	-Load Balance:
+		-É o ponto de contato único que manda pra uma instância ou outra, ele que faz o balanceamento
+
+AMAZON SIMPLE QUEUE SERVICE:
+	-A fila de entrada da aws, onde a requisição fica até o servidor processa-la 
+
+AWS LAMBDA:
+	-TODO, n entendi
+
+AWS CONTAINERS:
+	-Permite o uso de containers como kubernets, docker
+	-Impede o famoso "mas rodava na minha máquina"
+
+---
+
+AMAZON EBS:
+	-TODO n entendi direito
+	-Também fornece backup
+
+OBJECT STORAGE:
+	-cada objeto consiste no dado, metadados e key
+		-Data consite no arquivo
+		-Metadata difere cada um dos objetos, cada vez que vc sobe o arquivo é gerado um metadata diferente
+		
+AMAZON BUCKET (S3): 
+	-TODO, n entendi
+
+DATABASE TYPES:
+	-RDS: Gerenciados de BDS SQL
+		-Amazon Aurora: um dos serviços dentro do RDS que é usado pra rodar MYSQL e POSTGRESQL com melhores desempenhos
+	-DynamoDB: um dos diversos serviços que tratam os NoSQL
+	
+---
+AMAZON VIRTUAL PRIVATE CLOUD(AMAZON VPC):
+	-Rede privada dentro da AWS que restringe quem pode se comunicar com o que.
+	-serviço privado: serviço dentro da VPC que não permite acesso externo, apenas de serviços da AWS ou VPN. Ex: banco de dados, 
+	-serviço publico que pode ser acessado por fora da AWS, é acessado por meio de outro serviço chamado AWS GATEWAY
+
+	-AWS direct Connect Location: uma conexão fisica entre a rede da empresa com a AWS e se conecta com o VPC, melhora a conexão pra quem trabalha e permite acesso ao VPC pois é como se tivesse na mesma "rede" por causa da conexão direta.
+
+SECURITY GROUP:
+	-Autentica na entrada. É stateful, guarda estados
+
+AMAZON ROUTE 53:
+	-Funciona como o DNS dentro da amazon, retorna ao cliente as informações necessárias para ele se conectar ao servidor correto
+
+AWS Identity and Acces (IAM):
+	-Deixa definir usuários para fazer acesso a AWS, por exemplo pra ele poder por exemplo subir uma instância. É o usuário que criei na AWS qnd entrei no inter.
+
+AWS WAF:
+	-Não deixa IPs estranhos passarem, ex: IP de uma região que não costuma entrar, tipo no japão. Isso evita ataques DDOS distribuidos
+
+AWS SHIELD:
+	-Usado pra tratar ataques DDOS, pode ser usado junto com o WAF
+	-Caso o usuário tenha pago o Shield Advanced, caso vc receba um DDOS vc n tem que pagar pelo uso do servidor.
+
+Amazon GUARDDUTY:
+	-Alerta de possíveis problemas de segurança, fica lendo logs, vê se a utilização da aws vem sendo usada corretamente

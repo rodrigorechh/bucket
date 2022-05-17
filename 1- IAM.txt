@@ -1,0 +1,5 @@
+IAM (Identity Access Management):
+    -Gerenciamento de acesso relacionado aos usuários da aws
+
+    Identity: Adicionar, remover, aplicar permissões ou restrições, adicionar a grupos
+
