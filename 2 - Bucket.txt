@@ -7,144 +7,71 @@ AMAZON S3: Simple Storage Service
     -A lógica do serviço é a seguinte:
         -Você cria um bucket e dentro do bucket vc armazena seus arquivos
         -O nome da bucket tem que ser exclusivo.
+            -Tem a mesma regra de criar um nome pra DNS, não pode usar espaço ou caracteres especiais nem mais de 63 caracteres.
+                -Pq internamente cria um subdomínio
             -O nome gera um registro no DNS. Então vc vai ganhar a sua URL
                 -estrutura: https://s3-us-west-2.amazonaws.com/nome-bucket/nome-folder
                                     us-west-2: nome da região, nome-bucket e nome-folder
 
     -Disponibilidade(Avaliability):99.9%
     -Durabilidade/Integridade(Durability):99.99999999999%
-
+---
+    -Backup:
+        
     -Versionamento: Quando os arquivos são alterados, eles podem ser versionados
-
-    -Encryption: Encripta os arquivos.
-        -Criptografia default:
-            - criptografia do lado do servidor com chaves gerenciadas pelo Amazon S3 
-            protege de vazamentos da aws, mesmo com acesso físico ao datacenter, os dados estão salvos criptografados nele
+        -Vc habilita o versionamento abrindo a bucket, na aba properties ativar a opção Versioning
+        -Qnd essa opção é marcada, na aba overview do bucekt aparece a opção de mostrar o versionamento, que mostra as versões anteriores do arquivo
+        -Ao ativar o versionamento não é possível desmarcar a opção, apenas marcar a opção de suspender, aí vai parar ed versionar nas futuras alterações. 
+        -url passa a ter a versão caso seja ativada, assim que a aws diferencia uma da outra.
+            -ex: https://s3-us-west-2.amazonaws.com/nome-bucket/nome-folder?versionId=12333
+            -Inclusive, se ele for public e versionado, vai continuar sendo public
+        -Caso o arquivo seja deletado ele continua na aba "show". Vc precisa deletar o histórico de deleta da aba "show" para o arquivo ser restaurado
+            -Isso só ocorre caso vc delete o arquivo, se vc deletar uma versão antiga versionada, vai deletar de verdade.
+    -Encryption: Encripta os arquivos. N entendi direito como
     -Acl: Aplicado a um arquivo, define quem pode ter acesso ao arquivo.
-    -Bucket Police: Aplicado a um bucket, define quem pode ter acesso ao bucket.
+        -Clicar no arquivo e ir na aba permissions para alterar o ACL
+        -Ou também é possível na aba overview da bucket, clicar no arquivo, depois no botão Action, e depois em "turn public"
+    -Bucket Police: Aplicado a um bucket, define se o bucket pode permitir adicão de arquivos publicos ou não
 
+    obs:
+       -Quando vc configura o bucket (por ex, permissão ACL) ela vai ser válida por default pra todos os arquivos. Vc pode mudar cada um dos arquivos se quiser
+----
     Componentes:
-        -Quando upload é feito, a aws primeiro lê o arquivo, depois escreve.
         -Object base: 
+            -Quando upload é feito, a aws primeiro lê o arquivo, depois escreve.
             -Gera uma key com o nome do arquivo
             -value é os dados do arquivo
             -version é a versão
             -metadata: armazena de dados como tags, locais
-            -ACL: define se arquivo é publico ou priado
+            -ACL: define se o arquivo é publico ou privado
 
-    S3 Tiers: As tiers são os valores a serem pagos, são definidos por bucket
-+caro   -S3 Standart: Arquivos acessados em milissegundos ou microssegundos. Ao subir arquivo ele é replicado para no minimo 3 Availability Zones. Usados em arquivos muito acessados
-        -S3 IA: Vc paga menos pelo armazenamento, mas vc paga toda vez que acessa. É replicado para no minimio 3 availability zone
-        -S3 One Zone: Vc paga menos ainda pelo armazenamento e toda vez que acessa. É replicado para no minimo 1 availability zone
-+barato -Glacier: Vc paga menos ainda, paga pouco pelo acesso. Porém pode demorar horas para acessar um dado. Usado para arquivos de backup
+    Tier(classe): Ao publicar um arquivo é necessário escolher o tier dele.
+	S3 Standart: Armazenamento com alta performance, para dados acessados com frequência
+	S3 Intelligent-Tiering: promove a realocação automática de arquivos entre diferentes categorias de armazenamento. Para isso, ele usa dados de acesso monitorados pela própria plataforma, garantindo a guarda de arquivos pelo menor preço possível.
+		obs: Existe uma taxa de monitoramento a cada mil arquívos. Caso tenha muitos arquivos pequenos pode acabar nao valendo a pena pois a 	economia por aquivo poderá ser menor que a taxa de monitoramento cobrada. Já se o tamanho
+		dos arquivos forem maíores a economia pode ser maíor e a taxa de monitoramento vai ser a mesma.
+	S3 Standart IA(Infrequent Access): Vc paga menos pelo armazenamento, mas vc paga toda vez que acessa
+	S3 One Zone IA(Infrequent Access): Paga menos que no passo anterior, é replicado em 1 availability zone
+		-os dados armazenados nessa categoria de armazenamento serão perdidos em caso de destruição da zona de disponibilidade.
+	S3 clacier Instant Retrievals Paga muito pouco pelo armazenanento e bastante pelo acesso.
+		-Recomendado para arquivos que serão acessados poucas vezes (uma vez a cada 3 meses) mas quando serão acessados precisam de acesso inediato.
+	S3 Glacier Flexíble Retrieval e Glacier Deep Archives O gb de armazenamento são os mais baratos, mas demoram horas pra serem acessados.
     https://aws.amazon.com/pt/s3/storage-classes/
 
-    Tipos de pagamento:
+    Tipos de pagamento: vc pode configurar por aruivo salvo na bucket
         -Storage: pagamento por giga armazenado
         -Request: pagamento por acesso(não existe apenas no tier standart)
         -Storage Managment Price: pagamento por armazenamento de metadados
         -DTP: Preço de transferencia de uma região para outra caso necessário. Se subir uma instancia no EC2 e ela tiver em uma região, porém salvar no bucket que estiver em outra região, a taxa DTP é cobrada.
         -Transfer Aceleration(CDN/Cloudfront): É quando o arquivo do bucket é replicado em diversas Availability Zones
---
-Hands On 
-    -Ao criar bucket:
-        -É necessário escolher o nome único pra bucket(o nome deve ser no formato aceito pelo DNS, ou seja, não pode espaço, traço, etc...)
-        -Necessário escolher região pro bucket
-        -Configure Options: versioning, Server access logging, tags, object-level logging, default encrytion, cloud request metrics
-        -Set permissions: possível escolher se a bucket vai ser publica ou privada, por default é privada
-    -Criar pasta dentro da bucket:
-        -Possível escolher se utiliza ou não encriptação
-        -por default, tudo que é aplicado de permissão na bucket é aplicado na pasta, ao menos que se altere manualmente
-    -Criar arquivo dentro da bucket:
-        -Possível escolher se é publico ou privado
-        -Possível escolher se é possível alteração ou só leitura
-        -Possível escolher qual tier do arquivo
-        -Em seguida é criado uma url pro arquivo.
-    -Arquivos publicos:
-        -Se a bucket é publica, significa que é possível add arquivos publicos ou privados, se a bucket 
-        é privada, significa que só é possível add arquivos privados
-        -Para alterar bucket entre publica e privada, ir na página inicial da bucket, na aba "edit public access settings" e 
-        marcar as opções  
-        -Caso a bucket seja pública é possível selecionar o arquivo como publico ao cria-lo
-        -Em uma bucket publica, para deixar um arquivo privado publico, selecionar o arquivo e ir no botão Actions, em seguia em "Make Public"
-            -Ou é possível clicar no arquivo, e em seguida no botão "make public"
-    -Versionamento(Versioning):
-        -É possível ativar o versionamento de uma bucket indo na aba properties e Versioning
-        -Uma vez ativo o versioning, não é possível desativas, apenas suspender. Ou seja, o que ja foi versionado vai continuar 
-        versionado, a nao ser que seja deletado manualmente
-        -Uma vez ativo o versionamento, vai aparecer na pág que lista as buckets no botão versions: show
-            -O botão versions: show mostra cada versão do arquivo quando foi alterado
-        -Qnd um arquivo versionado é versionado, passa a ter um queryParam mostrando o id da versão
-            -Acessando o url, é possível acessa-los, se forem público vão continuar sendo públicos
-        -Caso vc delete o arquivo a versão deletada vai também ser salva na aba de versionamento. Se vc deletar esse arquivo deletado do versionamento, ele é restaurado(desdeletado)
-    -Cross-Replication:
-        -É a replicação de dados em outra Region
-        -Pode ser usada para backup, ou para deixar a conexão mais rápida para usuários próximos da região
-        -Ativar: ir na aba Managment da bucket e no botão Replication
-            -Precisa ter a opção de versionamento ativada
-            -Marcar se vai replicar a bucket inteira ou só com certo prefixo ou tags
-            -Marcar a bucket de destino (já deve ter sido criada)
-            -Marcar o tipo de tier que vai ser salvo os arquivos
-            -Rule name: é necessário informar um rule-Name. (N sei se entendi direito mas aparentemente
-            essas config que definimos agora não são as configs da bucket destino nem origem, então essa config
-            é chamada de "rule", aqui definimos o nome dessa rule que criamos)
-        -A cross-replication não deleta arquivos, se vc deletar o arquivo na origem, no destino não é deletado.
-            -Se vc faz replicação vc quer proteger os arquivos originais, então deletes sem querer não deletarão o do destino, a menos que vc remova manualmente
-        -Uma vez ativo a replicação, só e feita dos arquivos da ativação em diante.
-            -É possível replicar os arquivos antes da ativação pelo terminal (aws CLI) com a seguinte sequência de comandos:
-                -aws configute//abre o aws cli 
-                -aws s3 ls//abre a lista de buckets
-                -aws s3 cp --recursive s3://nome-bucketorigem s3://nome-bucketbackup //replica arquivo do bucketorigem pro bucketbackup
-    -Lifecyle:
-        -Permite criar um ciclo de vida pro arquivo
-            -ex: arquivo é salvo como um tier, depois de X dias vira outra tier, depois pra outra, depois é deletado
-        -Ativar:
-            -Na página da bucket ir na aba Management> Lifecycle>add lifecycle rule
-                -Dar nome pra rule
-                -Definir tag, a rule pode ser ativa pra todos os arquivos ou só pra arquivos com X tag
-            -Transitions: a transição de um tier pro outro depois de X dias
-                -É possível definir transition para arquivos de versionamento ou arquivos atuais
-            -Expiration: 
-                -É possível definir expiração para arquivos de versionamento ou arquivos atuais
-                    -Para arquivos da versão atual ele deleta, enviando pro versionamento
-                    -Para arquivos que já estão no versionamento, deleta permanentemente
-                    -Possível limpar todos os objetos que estão versionados mas já foram deletados no bucket atual
-                    -Possível marcar "clean up incomplete multipart uploads" que não sei oq significa
-    -Cloudfront:
-        -Replica dados em outras regiões de acordo com as requisições próximas a ela
-        -Quando alguém muito distante da região acessa um serviço aws, ele é replicado para a AZ e edge location mais próximas
-        Ele fica lá por com um certo lifetime, caso fique tempo sem ser utilizado é removido.
-            -Logo, a primeira conexão tende a ser lenta e as posteriores a ser rápidas por causa desse tipo de cache.
-        -ativar: abrir pagina do cloudfront>create distribution
-            -Em seguinda escolher web o rtmp
-                web: é pra ativar o serviço em instancias (sites http ou https)
-                rtmp: para ativar o serviço em arquivos(bucket)
-                (nao terminei de ver o video)
+
 ---
 
-É um Serviço da AWS para armazenamento de arquivos
-Armazenamento ilimitado de arquivos
-Limite de 5 tb por arquivo
-
-O bucket armazena os arquivos.
-O nome da bucket tem que ser exclusivo (único em toda AWS), para gerar uma url única.
-https://s3-us-west-2.amazonaws.com/nome-bucket/nome-folder : us-west-2: nome da região, nome-bucket e nome-folder
-
-Características:
--Disponibilidade(Avaliability):99.9%
--Durabilidade/Integridade(Durability):99.99999999999%
-
-Features:
--Versionamento: Quando os arquivos são alterados, eles podem ser versionados
--Encryption: Encripta os arquivos. N entendi direito como
--Acl: Aplicado a um arquivo, define quem pode ter acesso ao arquivo.
--Bucket Police: Aplicado a um bucket, define quem pode ter acesso ao bucket.
-
-Componentes:
-    -Object base: 
-        -Quando upload é feito, a aws primeiro lê o arquivo, depois escreve.
-        -Gera uma key com o nome do arquivo
-        -value é os dados do arquivo
-        -version é a versão
-        -metadata: armazena de dados como tags, locais
-        -ACL: define quem tem acesso ao arquivo
+---
+Versioning:
+Server access logging:
+    -Armazena informações 
+Tags:
+    -Permite add tags (metadados)
+Object-level logging:
+Encryption:
